@@ -20,7 +20,7 @@ namespace Ironbug.Grasshopper.Component
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("ShadeSurface", "_surface", "A Honeybee Shade", GH_ParamAccess.item);
-            pManager[pManager.AddGenericParameter("_performance_", "_performance_", "One of PhotovoltaicPerformances", GH_ParamAccess.item)].Optional = true;
+            pManager[pManager.AddGenericParameter("_performance_", "_performance_", EPDoc.GeneratorPhotovoltaic.Field_PhotovoltaicPerformanceObjectType, GH_ParamAccess.item)].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)

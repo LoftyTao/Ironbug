@@ -25,10 +25,10 @@ namespace Ironbug.Grasshopper.Component
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("generators", "generators", "A list of IB_Generator", GH_ParamAccess.list);
-            pManager.AddGenericParameter("inverter", "inverter", "", GH_ParamAccess.item);
-            pManager.AddGenericParameter("transformer", "transformer", "", GH_ParamAccess.item);
-            pManager.AddGenericParameter("electricalStorage", "electricalStorage", "", GH_ParamAccess.item);
-            pManager.AddGenericParameter("storageConverter", "storageConverter", "", GH_ParamAccess.item);
+            pManager.AddGenericParameter("inverter", "inverter", EPDoc.ElectricLoadCenterDistribution.Field_InverterObjectName, GH_ParamAccess.item);
+            pManager.AddGenericParameter("transformer", "transformer", EPDoc.ElectricLoadCenterDistribution.Field_TransformerObjectName, GH_ParamAccess.item);
+            pManager.AddGenericParameter("electricalStorage", "electricalStorage", EPDoc.ElectricLoadCenterDistribution.Field_ElectricalStorageObjectName, GH_ParamAccess.item);
+            pManager.AddGenericParameter("storageConverter", "storageConverter", EPDoc.ElectricLoadCenterDistribution.Field_StorageConverterObjectName, GH_ParamAccess.item);
 
             pManager[0].Optional = true;
             pManager[0].DataMapping = GH_DataMapping.Flatten;
