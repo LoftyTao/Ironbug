@@ -15,7 +15,7 @@ namespace Ironbug.EPDoc
 {
 	<#
 	//####################################
-	var dir = @"D:\Dev\EPDoc2Json\EPDoc2Json\bin\Debug\net7\outputs";
+	var dir = @"C:\Users\mingo\Repos\EPDoc2Json\EPDoc2Json\bin\Debug\net8\outputs";
 	var files = Directory.GetFiles(dir, "*.json");
 
 	var arr = new List<dynamic>();
@@ -43,7 +43,7 @@ namespace Ironbug.EPDoc
 		{
 			foreach(var obj in optionalSubsubsection)
 			{
-				if(obj.Name == "Inputs")
+				if(obj.Name == "Inputs" && obj.Paragraph != null)
 				{ 
 					foreach	(var f in obj.Paragraph)
 					{
