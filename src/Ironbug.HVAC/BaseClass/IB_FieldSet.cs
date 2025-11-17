@@ -8,7 +8,7 @@ using System.Reflection;
 namespace Ironbug.HVAC.BaseClass
 {
 
-    public abstract class IB_FieldSet: ICollection<IB_Field>
+    public abstract class IB_FieldSet : ICollection<IB_Field>
     {
         public string OwnerEpNote { get; private set; } = string.Empty;
 
@@ -52,33 +52,33 @@ namespace Ironbug.HVAC.BaseClass
 
             var name = string.Format("Ironbug.EPDoc.{0}", tp.Name);
             Type type = typeof(EPDoc.AirLoopHVAC).Assembly.GetType(name, false, true);
-            
-            if (type!=null)
+
+            if (type != null)
             {
                 //add notes to field's description
                 var note = type.GetField("Note").GetValue(null) as string;
                 if (!string.IsNullOrEmpty(note))
                 {
-                    note = note.Length > 1000?note.Substring(0,1000)+"....\n(Due to the length of content, documentation has been shown partially)":note;
+                    note = note.Length > 1000 ? note.Substring(0, 1000) + "....\n(Due to the length of content, documentation has been shown partially)" : note;
                     note += Environment.NewLine;
                     note += Environment.NewLine;
-                    note += "Above content copyright © 1996-2021 EnergyPlus, all contributors. All rights reserved. EnergyPlus is a trademark of the US Department of Energy.";
-                    
+                    note += "Above content copyright © 1996-2025 EnergyPlus, all contributors. All rights reserved. EnergyPlus is a trademark of the US Department of Energy.";
+
                 }
                 else
                 {
-                   note = "There is no documentation available";
+                    note = "There is no documentation available";
 
                 }
                 this.OwnerEpNote = note;
                 this._items.UpdateFromEpDoc(type);
             }
-            
+
 
         }
 
 
-        
+
 
         public int Count => _items.Count;
 
@@ -100,13 +100,13 @@ namespace Ironbug.HVAC.BaseClass
             return _items.Any(_ => _.FULLNAME == item.FULLNAME);
         }
 
-        
+
         public bool Contains(string fullName)
         {
             return _items.Any(_ => _.FULLNAME == fullName.CleanFULLNAME());
         }
 
-        
+
 
         public void CopyTo(IB_Field[] array, int arrayIndex)
         {
@@ -137,7 +137,7 @@ namespace Ironbug.HVAC.BaseClass
         /// </summary>
         /// <param name="fullName"></param>
         /// <returns>IB_DataField or null</returns>
-        public static IB_Field GetByName(this IEnumerable<IB_Field>dataFields, string fullName)
+        public static IB_Field GetByName(this IEnumerable<IB_Field> dataFields, string fullName)
         {
             return dataFields.FirstOrDefault(item => item.FULLNAME == fullName.CleanFULLNAME());
         }
@@ -164,7 +164,7 @@ namespace Ironbug.HVAC.BaseClass
         {
 
             var dfSet = iB_fields.ToList();
-            
+
             foreach (var item in dfSet)
             {
                 var found = iddFields.FirstOrDefault(_ => CleanFULLNAME(_.name()) == item.FULLNAME);
@@ -179,13 +179,13 @@ namespace Ironbug.HVAC.BaseClass
 
         public static void UpdateFromEpDoc(this IEnumerable<IB_Field> iB_fields, Type EpDocType)
         {
-            
+
             foreach (var item in iB_fields)
             {
                 var fieldNameInEpDoc = string.Format("FIELD_{0}", item.FULLNAME);
                 var founds = EpDocType.GetFields().Where(_ => _.Name.ToUpper().StartsWith(fieldNameInEpDoc));
                 FieldInfo found = null;
-                if (founds.Count()>1)
+                if (founds.Count() > 1)
                 {
                     found = founds.FirstOrDefault(_ => _.Name.ToUpper() == fieldNameInEpDoc);
                 }
@@ -196,10 +196,10 @@ namespace Ironbug.HVAC.BaseClass
                 if (found is null) continue;
 
                 string fieldNote = found.GetValue(null) as string;
-                
+
                 item.AddDescriptionFromEpNote(fieldNote);
             }
-            
+
 
         }
 
@@ -212,7 +212,7 @@ namespace Ironbug.HVAC.BaseClass
 
             return derivedDataFieldSet.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Select(_ => (IB_Field)_.GetValue(derivedDataFieldSet, null));
-            
+
 
         }
 
@@ -225,7 +225,7 @@ namespace Ironbug.HVAC.BaseClass
             var mergedFields = fieldItemCollection.ToList();
             openStudioSetters.ToList().ForEach(_ =>
             {
-                
+
                 var fieldMatched = mergedFields.GetByName(_.FULLNAME);
                 if (fieldMatched is null)
                 {
@@ -236,12 +236,12 @@ namespace Ironbug.HVAC.BaseClass
                 {
                     //TODO: this is not the best practice
                     fieldMatched.DataTypeName = _.DataTypeName;
-                    fieldMatched.DetailedDescription = _.DataType == typeof(bool)? $"{fieldMatched.DetailedDescription}\r\nPlease use TRUE or FALSE to set this value regardless whatever suggested below!" : fieldMatched.DetailedDescription;
+                    fieldMatched.DetailedDescription = _.DataType == typeof(bool) ? $"{fieldMatched.DetailedDescription}\r\nPlease use TRUE or FALSE to set this value regardless whatever suggested below!" : fieldMatched.DetailedDescription;
                     fieldMatched.SetterMethod = _.SetterMethod;
                 }
 
             });
-            
+
             return mergedFields;
 
         }

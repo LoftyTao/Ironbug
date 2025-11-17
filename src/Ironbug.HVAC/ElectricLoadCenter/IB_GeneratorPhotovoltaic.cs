@@ -2,8 +2,6 @@
 using Newtonsoft.Json;
 using OpenStudio;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Ironbug.HVAC
@@ -16,6 +14,10 @@ namespace Ironbug.HVAC
 
         [DataMember]
         private string SurfaceID { get; set; }
+
+        [DataMember]
+        private bool IsPVT { get; set; }
+
         private IB_PhotovoltaicPerformance _performance => this.GetChild<IB_PhotovoltaicPerformance>(0);
 
         [JsonConstructor]
@@ -28,9 +30,22 @@ namespace Ironbug.HVAC
             this.AddChild(null);
         }
 
+        public override IB_ModelObject Duplicate()
+        {
+            var dup = base.Duplicate() as IB_GeneratorPhotovoltaic;
+            dup.SurfaceID = this.SurfaceID;
+            dup.IsPVT = this.IsPVT;
+            return dup;
+        }
+
         public void SetSurface(string surfaceID)
         {
             SurfaceID = surfaceID;
+        }
+
+        public void SetIsPVT(bool isPVT)
+        {
+            IsPVT = isPVT;
         }
 
         public void SetPhotovoltaicPerformance(IB_PhotovoltaicPerformance performance)
@@ -40,6 +55,17 @@ namespace Ironbug.HVAC
 
         public override Generator ToOS(Model model)
         {
+            var trackingID = string.Empty;
+            if (IsPVT)
+            {
+                // shared obj in IB_SolarCollectorFlatPlatePhotovoltaicThermal
+                trackingID = this.GetTrackingID();
+                var objInModel = this.GetIfInModel<GeneratorPhotovoltaic>(model, trackingID);
+                if (objInModel != null)
+                    return objInModel;
+            }
+
+            // create a new one
             if (string.IsNullOrEmpty(SurfaceID))
                 throw new ArgumentException("Invalid shading surface ID");
 
@@ -54,7 +80,7 @@ namespace Ironbug.HVAC
             GeneratorPhotovoltaic obj = null;
             if (_performance == null)
             {
-                obj = base.OnNewOpsObj((m)=> GeneratorPhotovoltaic.simple(m), model);
+                obj = base.OnNewOpsObj((m) => GeneratorPhotovoltaic.simple(m), model);
             }
             else if (_performance is IB_PhotovoltaicPerformanceSimple simple)
             {
@@ -64,7 +90,7 @@ namespace Ironbug.HVAC
                     simple.ApplyAttributesToObj(model, perf.get());
 
             }
-            else if(_performance is IB_PhotovoltaicPerformanceSandia sandia)
+            else if (_performance is IB_PhotovoltaicPerformanceSandia sandia)
             {
                 obj = base.OnNewOpsObj((m) => GeneratorPhotovoltaic.sandia(m), model);
                 var perf = obj.photovoltaicPerformance()?.to_PhotovoltaicPerformanceSandia();
@@ -85,7 +111,16 @@ namespace Ironbug.HVAC
             }
 
             obj.setSurface(shd);
+            if (IsPVT)
+                OpsIDMapper.TryAdd(trackingID, obj.handle());
             return obj;
+        }
+
+        private GeneratorPhotovoltaic TryGetExisting(Model model)
+        {
+            var trackingID = this.GetTrackingID();
+            var objInModel = this.GetIfInModel<GeneratorPhotovoltaic>(model, trackingID);
+            return objInModel;
         }
 
     }

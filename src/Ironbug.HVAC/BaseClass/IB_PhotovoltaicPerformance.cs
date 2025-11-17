@@ -1,6 +1,5 @@
 ﻿using OpenStudio;
 using System;
-using System.Collections.Generic;
 
 namespace Ironbug.HVAC.BaseClass
 {

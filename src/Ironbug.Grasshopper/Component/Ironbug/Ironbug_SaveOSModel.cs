@@ -1,16 +1,17 @@
-﻿using System;
+﻿using GH_IO.Serialization;
 using Grasshopper.Kernel;
-using System.IO;
-using System.Windows.Forms;
-using GH_IO.Serialization;
+using Ironbug.HVAC;
+using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace Ironbug.Grasshopper.Component
 {
     public class Ironbug_SaveOSModel : Ironbug_Component
     {
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.saveHVAC; 
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.saveHVAC;
         public override Guid ComponentGuid => new Guid("D9F1F837-B2D0-41C7-88D8-D20303FB93A8");
 
         bool _overrideMode = false;
@@ -56,9 +57,9 @@ namespace Ironbug.Grasshopper.Component
             DA.GetData(4, ref write);
 
             if (!write) return;
-            
+
             if (string.IsNullOrEmpty(filepath)) return;
-           
+
             if (File.Exists(filepath))
             {
                 if (this._overrideMode)
@@ -73,13 +74,9 @@ namespace Ironbug.Grasshopper.Component
                 }
             }
 
-            var saved = false;
-            if (hvac != null)
-                saved |= hvac.SaveHVAC(filepath);
-            if (ems != null)
-                saved |= ems.SaveEMS(filepath);
-            if (elc != null)
-                saved |= elc.SaveELC(filepath);
+            var ibModel = new IB_Model(hvac, ems, elc);
+            var saved = ibModel.SaveToOSM(filepath);
+
 
             if (saved)
             {
@@ -97,7 +94,7 @@ namespace Ironbug.Grasshopper.Component
 
                     throw;
                 }
-               
+
             }
 
             void OpenOPS(string FilePath)
@@ -117,7 +114,7 @@ namespace Ironbug.Grasshopper.Component
                 {
                     Process.Start(FilePath);
                 }
-               
+
             }
 
         }
@@ -125,7 +122,7 @@ namespace Ironbug.Grasshopper.Component
 
         protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
         {
-            
+
             Menu_AppendItem(menu, "Override", ChangeOverrideModel, true, _overrideMode)
                .ToolTipText = "This will remove the osm file first if exists.";
             Menu_AppendItem(menu, "Write&Open", ChangeWriteMode, true, _writeMode == 1)
@@ -162,7 +159,7 @@ namespace Ironbug.Grasshopper.Component
 
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetBoolean ("OverrideMode", this._overrideMode);
+            writer.SetBoolean("OverrideMode", this._overrideMode);
             writer.SetInt32("_writeMode", this._writeMode);
             return base.Write(writer);
         }

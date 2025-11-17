@@ -1,5 +1,4 @@
 ﻿using Ironbug.Core;
-using System;
 using System.Collections.Generic;
 
 namespace Ironbug.HVAC
@@ -10,6 +9,7 @@ namespace Ironbug.HVAC
     ///     - IIB_DualLoopObj
     ///     - IB_ScheduleRuleset
     ///     _ IB_NodeProbe (OpenStudio.Node)
+    ///     - IB_GeneratorPhotovoltaic
     /// </summary>
     internal static class OpsIDMapper
     {
@@ -42,7 +42,7 @@ namespace Ironbug.HVAC
             return _mapper.TryGetValue(trackingID, out uid);
 
         }
-      
+
 
 
 

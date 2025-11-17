@@ -763,4 +763,19 @@
   <data name="InverterTable" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\InverterTable.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="SolarCollectorFlatPlateWater_Perf" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SolarCollectorFlatPlateWater_Perf.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PTV" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PTV.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PTV_Performance" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PTV_Performance.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="BIPVT_Performance" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\BIPVT_Performance.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SolarCollectorFlatPlateWater" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SolarCollectorFlatPlateWater.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace Ironbug.HVAC
 {
@@ -39,6 +37,16 @@ namespace Ironbug.HVAC
 
             //get Model from file if exists
             var model = IB_Utility.GetOrNewModel(osmFile);
+            SaveELC(model);
+
+            //save osm file
+            var osmPath = OpenStudio.OpenStudioUtilitiesCore.toPath(filePath);
+            return model.save(osmPath, true);
+
+        }
+
+        public bool SaveELC(OpenStudio.Model model)
+        {
 
             if (SubPanels != null)
             {
@@ -58,10 +66,7 @@ namespace Ironbug.HVAC
                 var added = PowerOutTransformer.ToOS(model);
             }
 
-            //save osm file
-            var osmPath = OpenStudio.OpenStudioUtilitiesCore.toPath(filePath);
-            return model.save(osmPath, true);
-
+            return true;
         }
 
 

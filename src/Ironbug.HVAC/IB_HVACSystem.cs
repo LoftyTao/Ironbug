@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using Ironbug.Core;
+using Ironbug.HVAC.BaseClass;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using Ironbug.Core;
-using Ironbug.HVAC.BaseClass;
-using System.Dynamic;
 
 namespace Ironbug.HVAC
 {
@@ -28,7 +28,7 @@ namespace Ironbug.HVAC
         {
             get
             {
-                _version = _version?? typeof(IB_HVACSystem).Assembly.GetName().Version.ToString();
+                _version = _version ?? typeof(IB_HVACSystem).Assembly.GetName().Version.ToString();
                 return _version;
             }
             private set => _version = value;
@@ -37,7 +37,7 @@ namespace Ironbug.HVAC
         [IgnoreDataMember]
         private string _existFile = "";
 
-        private IB_HVACSystem() 
+        private IB_HVACSystem()
         {
 
             this.AirLoops = new List<IB_AirLoopHVAC>();
@@ -53,18 +53,18 @@ namespace Ironbug.HVAC
             this.AirLoops = airLoops;
             this.PlantLoops = plantLoops;
             this.VariableRefrigerantFlows = vrfs;
-            
-            var existingA = this.AirLoops.Where(_=>_ is IIB_ExistingLoop).Select(_=>((IIB_ExistingLoop)_).ExistingObj.OsmFile);
+
+            var existingA = this.AirLoops.Where(_ => _ is IIB_ExistingLoop).Select(_ => ((IIB_ExistingLoop)_).ExistingObj.OsmFile);
             var existingP = this.PlantLoops.Where(_ => _ is IIB_ExistingLoop).Select(_ => ((IIB_ExistingLoop)_).ExistingObj.OsmFile);
 
             var existing = existingA.ToList();
             existing.AddRange(existingP);
             existing.Distinct();
-            if (existing.Count >1)
+            if (existing.Count > 1)
             {
                 throw new ArgumentException("Cannot merge loops from different osm files");
             }
-            else if (existing.Count==1)
+            else if (existing.Count == 1)
             {
                 _existFile = existing[0];
             }
@@ -77,7 +77,7 @@ namespace Ironbug.HVAC
         public bool ShouldSerializeVariableRefrigerantFlows() => !this.VariableRefrigerantFlows.IsNullOrEmpty();
         #endregion
 
-        
+
 
         public string ToJson(bool indented = false)
         {
@@ -106,7 +106,7 @@ namespace Ironbug.HVAC
         public static IB_HVACSystem FromJson(string json)
         {
             if (string.IsNullOrEmpty(json))
-                throw new ArgumentNullException("json","Failed to deserialize the JSON to HVACSystem");
+                throw new ArgumentNullException("json", "Failed to deserialize the JSON to HVACSystem");
             try
             {
                 var hvac = JsonConvert.DeserializeObject<IB_HVACSystem>(json, IB_JsonSetting.ConvertSetting);
@@ -116,7 +116,7 @@ namespace Ironbug.HVAC
             {
                 throw e;
             }
-           
+
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace Ironbug.HVAC
             tempPath = $"{tempPath}\\temp.osm";
 
             return this.SaveHVAC(tempPath) ? tempPath : string.Empty;
-            
+
         }
 
         public static bool SaveHVAC(string osmPath, string hvacJsonFilePath)
@@ -155,7 +155,7 @@ namespace Ironbug.HVAC
 
         }
 
-   
+
         public bool SaveHVAC(string osmFile)
         {
             //here means editing current existing file 
@@ -169,11 +169,16 @@ namespace Ironbug.HVAC
             }
 
             return IB_Utility.SaveHVAC(this, osmFile);
-            
+
         }
 
-      
- 
+        public bool SaveHVAC(OpenStudio.Model model)
+        {
+            return IB_Utility.SaveHVAC(this, model);
+        }
+
+
+
         public override string ToString()
         {
             var info = new List<string>();
@@ -183,7 +188,7 @@ namespace Ironbug.HVAC
                 var loops = this.AirLoops.GroupBy(_ => _ is HVAC.IB_NoAirLoop);
                 var noAir = loops.FirstOrDefault(_ => _.Key == true)?.OfType<HVAC.IB_NoAirLoop>();
                 if (noAir != null)
-                    s = $"{s}{Environment.NewLine}  - Zonal-system: {noAir.SelectMany(_=>_.ThermalZones).Count()}";
+                    s = $"{s}{Environment.NewLine}  - Zonal-system: {noAir.SelectMany(_ => _.ThermalZones).Count()}";
                 var airCount = loops.FirstOrDefault(_ => _.Key == false)?.Count();
                 if (airCount.HasValue)
                     s = $"{s}{Environment.NewLine}  - Air loop: {airCount.GetValueOrDefault()}";
@@ -233,7 +238,7 @@ namespace Ironbug.HVAC
         {
             return this.GetThermalZones()?
                 .Select(_ => _?.ZoneName)?
-                .Where(_=> !string.IsNullOrEmpty(_))?
+                .Where(_ => !string.IsNullOrEmpty(_))?
                 .ToList() ?? new List<string>();
 
         }
@@ -251,11 +256,11 @@ namespace Ironbug.HVAC
             if (!same) return false;
             same &= this.PlantLoops.SequenceEqual(other.PlantLoops);
             if (!same) return false;
-            same &= this.VariableRefrigerantFlows.SequenceEqual(other.VariableRefrigerantFlows); 
+            same &= this.VariableRefrigerantFlows.SequenceEqual(other.VariableRefrigerantFlows);
             if (!same) return false;
             same &= this.GetType() == other.GetType();
             if (!same) return false;
-            same &= this.IBVersion== other.IBVersion;
+            same &= this.IBVersion == other.IBVersion;
             return same;
         }
 

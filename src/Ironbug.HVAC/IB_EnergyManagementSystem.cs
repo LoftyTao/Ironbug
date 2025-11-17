@@ -1,8 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Ironbug.HVAC
@@ -20,7 +16,7 @@ namespace Ironbug.HVAC
 
         private IB_EnergyManagementSystem() { }
         public IB_EnergyManagementSystem(
-            List<IB_EnergyManagementSystemActuator> actuators, 
+            List<IB_EnergyManagementSystemActuator> actuators,
             List<IB_EnergyManagementSystemSensor> sensors,
             List<BaseClass.IB_EnergyManagementSystemVariable> variables,
             List<IB_EnergyManagementSystemProgramCallingManager> programManagers)
@@ -29,13 +25,13 @@ namespace Ironbug.HVAC
             this.Sensors = sensors ?? new List<IB_EnergyManagementSystemSensor>();
             this.ProgramClnManagers = programManagers ?? new List<IB_EnergyManagementSystemProgramCallingManager>();
             this.Variables = variables ?? new List<BaseClass.IB_EnergyManagementSystemVariable>();
-            
+
         }
 
         //public string SaveAsIBJson(string path)
         //{
         //    var json = JsonConvert.SerializeObject(this, Formatting.Indented);
-          
+
         //    using (StreamWriter file = new StreamWriter(path, true))
         //    {
         //        file.Write(json);
@@ -48,19 +44,28 @@ namespace Ironbug.HVAC
         //    var hvac = JsonConvert.DeserializeObject<IB_EnergyManagementSystem>(json, IB_JsonSetting.ConvertSetting);
         //    return hvac;
         //}
-
-
         public bool SaveEMS(string filepath)
+        {
+            var osmFile = filepath;
+
+            //get Model from file if exists
+            var model = IB_Utility.GetOrNewModel(osmFile);
+
+            SaveEMS(model);
+
+            //save osm file
+            var osmPath = OpenStudio.OpenStudioUtilitiesCore.toPath(filepath);
+            return model.save(osmPath, true);
+        }
+
+        public bool SaveEMS(OpenStudio.Model model)
         {
             var actuators = this.Actuators;
             var sensors = this.Sensors;
             var prograManagers = this.ProgramClnManagers;
             var variables = this.Variables;
 
-            var osmFile = filepath;
 
-            //get Model from file if exists
-            var model = IB_Utility.GetOrNewModel(osmFile);
 
             var mapper = new Dictionary<string, string>();
             foreach (var item in actuators)
@@ -123,13 +128,11 @@ namespace Ironbug.HVAC
             }
 
 
-            //save osm file
-            var osmPath = OpenStudio.OpenStudioUtilitiesCore.toPath(filepath);
-            return model.save(osmPath, true);
-            
+            return true;
+
         }
 
 
-        
+
     }
 }

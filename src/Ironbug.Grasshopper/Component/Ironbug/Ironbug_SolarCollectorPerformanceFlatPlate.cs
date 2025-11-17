@@ -1,6 +1,6 @@
-﻿using System;
-using Grasshopper.Kernel;
-using Ironbug.HVAC;
+﻿using Grasshopper.Kernel;
+using Ironbug.Grasshopper.Properties;
+using System;
 namespace Ironbug.Grasshopper.Component
 {
     public class Ironbug_SolarCollectorPerformanceFlatPlate : Ironbug_HVACWithParamComponent
@@ -30,7 +30,7 @@ namespace Ironbug.Grasshopper.Component
             DA.SetData(0, obj);
         }
 
-        protected override System.Drawing.Bitmap Icon => null;
+        protected override System.Drawing.Bitmap Icon => Resources.SolarCollectorFlatPlateWater_Perf;
 
         public override Guid ComponentGuid => new Guid("96184A20-A628-4DB6-A35E-B3B60E3B2A9D");
 

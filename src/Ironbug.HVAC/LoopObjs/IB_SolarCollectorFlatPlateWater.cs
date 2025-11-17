@@ -1,8 +1,8 @@
-using System;
-using System.Runtime.Serialization;
 using Ironbug.HVAC.BaseClass;
 using Newtonsoft.Json;
 using OpenStudio;
+using System;
+using System.Runtime.Serialization;
 
 namespace Ironbug.HVAC
 {
@@ -42,11 +42,11 @@ namespace Ironbug.HVAC
         {
             if (string.IsNullOrEmpty(SurfaceID))
                 throw new ArgumentException("Invalid shading surface ID");
-        
+
             var oShade = model.getShadingSurfaceByName(SurfaceID);
             if (oShade == null || oShade.isNull())
                 throw new ArgumentException($"Invalid shading surface ID: {SurfaceID}");
-            if(!oShade.is_initialized())
+            if (!oShade.is_initialized())
                 throw new ArgumentException($"Invalid shading surface ID: {SurfaceID}");
 
             var shd = oShade.get();

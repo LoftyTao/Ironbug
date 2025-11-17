@@ -30,7 +30,7 @@ namespace Ironbug.HVAC
             foreach (var f in _delaiedAMFuncs)
             {
                 if (!(f?.Invoke()).GetValueOrDefault())
-                    throw new ArgumentException("Failed to set a reference node probe or a control zone, please ensure the probe or control zone is added to the loop."); 
+                    throw new ArgumentException("Failed to set a reference node probe or a control zone, please ensure the probe or control zone is added to the loop.");
             }
 
             // clear
@@ -49,19 +49,51 @@ namespace Ironbug.HVAC
             _delaiedAMFuncs = null;
         }
 
+        public static bool SaveToOSM(IB_Model ibModel, string osmFile)
+        {
+            var saved = false;
+            StartSaving();
+            //get Model from file if exists
+            var model = GetOrNewModel(osmFile);
 
+            if (ibModel.HVACSystem != null)
+                saved |= ibModel.HVACSystem.SaveHVAC(model);
+            if (ibModel.EnergyManagementSystem != null)
+                saved |= ibModel.EnergyManagementSystem.SaveEMS(model);
+            if (ibModel.ElectricLoadCenter != null)
+                saved |= ibModel.ElectricLoadCenter.SaveELC(model);
+
+            EndSaving();
+            //save osm file
+            var osmPath = OpenStudio.OpenStudioUtilitiesCore.toPath(osmFile);
+            return model.save(osmPath, true);
+
+        }
 
         public static bool SaveHVAC(IB_HVACSystem hvac, string osmFile)
         {
             StartSaving();
+            //get Model from file if exists
+            var model = GetOrNewModel(osmFile);
+            SaveHVAC(hvac, model);
 
+            //Save OpenStudio Model workflow seed file
+            SaveWorkflowSeedFile(osmFile, model);
+
+            //save osm file
+            var doneSaving = model.Save(osmFile);
+
+            EndSaving();
+
+            return doneSaving;
+        }
+
+        internal static bool SaveHVAC(IB_HVACSystem hvac, OpenStudio.Model model)
+        {
             var airLoops = hvac.AirLoops;
             var plantLoops = hvac.PlantLoops;
             var vrfs = hvac.VariableRefrigerantFlows;
 
-
-            //get Model from file if exists
-            var model = GetOrNewModel(osmFile);
 
             //Add outdoor air temperature output variable
             var outT = new OpenStudio.OutputVariable("Site Outdoor Air Drybulb Temperature", model);
@@ -100,6 +132,13 @@ namespace Ironbug.HVAC
             tol.setToleranceforTimeCoolingSetpointNotMet(1.11);
             tol.setToleranceforTimeHeatingSetpointNotMet(1.11);
 
+            return true;
+
+        }
+
+
+        static void SaveWorkflowSeedFile(string osmFile, OpenStudio.Model model)
+        {
             //save workflow 
             var osw = Path.Combine(Path.GetDirectoryName(osmFile), Path.GetFileNameWithoutExtension(osmFile), "workflow.osw");
             var wf = model.workflowJSON();
@@ -107,13 +146,6 @@ namespace Ironbug.HVAC
             wf.saveAs(OpenStudio.OpenStudioUtilitiesCore.toPath(osw));
             if (!File.Exists(osw))
                 throw new ArgumentException($"Failed to create workflowJSON file: {osw}");
-
-
-            //save osm file
-            var doneSaving = model.Save(osmFile);
-
-            EndSaving();
-            return doneSaving;
         }
 
         public static OpenStudio.Model GetOrNewModel(string opsFilePath)
